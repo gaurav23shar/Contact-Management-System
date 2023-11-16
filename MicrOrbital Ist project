@@ -1,0 +1,65 @@
+import csv
+
+class ContactManager:
+    def __init__(self, csv_file):
+        self.csv_file = csv_file
+        self.contacts = []
+        self.load_contacts()
+
+    def load_contacts(self):
+        try:
+            with open(self.csv_file, 'r') as file:
+                reader = csv.DictReader(file)
+                self.contacts = list(reader)
+        except FileNotFoundError:
+            # If the file doesn't exist, create an empty list
+            self.contacts = []
+
+    def save_contacts(self):
+        with open(self.csv_file, 'w', newline='') as file:
+            fieldnames = ['Name', 'Email', 'Phone']
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+
+            writer.writeheader()
+            writer.writerows(self.contacts)
+
+    def add_contact(self, name, email, phone):
+        new_contact = {'Name': name, 'Email': email, 'Phone': phone}
+        self.contacts.append(new_contact)
+        self.save_contacts()
+
+    def display_contacts(self):
+        for contact in self.contacts:
+            print(contact)
+
+    def update_contact(self, old_name, new_name, new_email, new_phone):
+        for contact in self.contacts:
+            if contact['Name'] == old_name:
+                contact['Name'] = new_name
+                contact['Email'] = new_email
+                contact['Phone'] = new_phone
+                self.save_contacts()
+                return True
+        return False
+
+if __name__ == "__main__":
+    # Example usage:
+    csv_file_path = "contacts.csv"
+    contact_manager = ContactManager(csv_file_path)
+
+    # Adding a new contact
+    contact_manager.add_contact("John Doe", "john@example.com", "123-456-7890")
+
+    # Displaying all contacts
+    print("All Contacts:")
+    contact_manager.display_contacts()
+
+    # Updating a contact
+    if contact_manager.update_contact("John Doe", "John Smith", "john.smith@example.com", "987-654-3210"):
+        print("Contact updated successfully.")
+    else:
+        print("Contact not found.")
+
+    # Displaying all contacts after the update
+    print("\nAll Contacts After Update:")
+    contact_manager.display_contacts()
